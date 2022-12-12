@@ -55,9 +55,9 @@ def heatmap(data, num):
     im = ax.imshow(data, interpolation='nearest', cmap="Spectral")
     fig.colorbar(im, orientation='vertical')
     # Show all ticks and label them with the respective list entries
-    ax.set_xticks(np.arange(len(data)), labels=data.index, rotation=90,
+    ax.set_xticks(np.arange(len(data)), labels=label, rotation=90,
                   fontsize=12)
-    ax.set_yticks(np.arange(len(data)), labels=data.index, fontsize=12)
+    ax.set_yticks(np.arange(len(data)), labels=label, fontsize=12)
     # Loop over data dimensions and create text annotations
     for i in range(len(data.columns)):
         for j in range(len(data.columns)):
@@ -273,6 +273,10 @@ grp_aus.drop('Indicator Name', inplace=True)
 grp_aus = grp_aus.astype(float)
 aus_corr = grp_aus.corr()
 
+# List for the indices for the heatmap
+label = ["Total Population", 'Agri., Forestry & Fishing',
+         'CO2 from Solid Fuel', 'Electric Power Consum.', 'Forest area',
+         'Agricultural land']
 # Functoin call to plot heatmap of Correlation coefficient of India and
 # Australia
 heatmap(india_corr, 1)
