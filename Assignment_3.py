@@ -58,10 +58,11 @@ def scatter_plot(data1, data2, a, b):
 
     """
     # Setting the figure size and axes of the subplot
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6), dpi=144)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6), dpi=200)
     # Title of the whole plot
-    fig.suptitle('Scatter Plots of CO2 emmissions vs Cereal Yield for 1990 and 2019', fontsize=18)
-    plt.rcdefaults()
+    fig.suptitle(
+        'Scatter Plots of CO2 emmissions vs Cereal Yield for 1990 and 2019',
+        fontsize=18)
     # Plotting the data
     ax1.scatter(data1['co2'], data1['cereal'], color='red')
     ax2.scatter(data2['co2'], data2['cereal'], color='green')
@@ -85,12 +86,15 @@ def clustering(data, ncluster, year):
     ----------
     data : TYPE: Dataframe
         Dataset as a dataframe for clustering.
-    n : TYPE: Integer
+    ncluster : TYPE: Integer
         Number of clusters
+    year : TYPE: Integer
+        Year to be printed on the graph.
 
-    Returns
-    -------
-    None
+    Yields
+    ------
+    clusters1 : TYPE: Dataframe
+        Dataframe containing Countries and their cluster numbers.
 
     """
     global kmeans
@@ -100,7 +104,7 @@ def clustering(data, ncluster, year):
     kmeans.fit(data)
     # labels is the number of the associated clusters of (x,y) points
     labels = kmeans.labels_
-    clusters = pd.DataFrame(labels, index=data.index, columns=['Cluster ID'])
+    clusters1 = pd.DataFrame(labels, index=data.index, columns=['Cluster ID'])
     # extract the estimated cluster centres
     centers = kmeans.cluster_centers_
     # calculate the silhoutte score
@@ -108,12 +112,12 @@ def clustering(data, ncluster, year):
     print(sil)
 
     # plot using the labels to select colour
-    plt.figure(figsize=(15, 15), dpi=144)
+    plt.figure(figsize=(15, 15), dpi=200)
     col = ["blue", "orange", "green", "tab:red", "tab:purple",
            "tab:brown", "tab:pink", "tab:gray", "tab:olive", "tab:cyan"]
-    # loop over the different labels 
+    # loop over the different labels
     for l in range(ncluster):
-        plt.plot(data[labels==l]["co2"], data[labels==l]["cereal"], "o",
+        plt.plot(data[labels == l]["co2"], data[labels == l]["cereal"], "o",
                  markersize=10, color=col[l], alpha=0.5, label=("Cluster", l+1))
     # show cluster centres
     for ic in range(ncluster):
@@ -125,6 +129,8 @@ def clustering(data, ncluster, year):
     plt.title("Scatter plot showing the Clustering of different countries for the year %d" % year, fontsize=15)
     plt.legend()
     plt.show()
+    
+    return clusters1
 
 
 def prediction(testdata, year):
@@ -142,11 +148,13 @@ def prediction(testdata, year):
 
     Yields
     ------
-    None.
+    clusters2 : TYPE: Dataframe
+        Dataframe containing Countries and their cluster numbers.
 
     """
     labels = kmeans.predict(testdata)
-    clusters = pd.DataFrame(labels, index=testdata.index, columns=['Cluster ID'])
+    clusters2 = pd.DataFrame(labels, index=testdata.index, columns=
+                             ['Cluster ID'])
     # extract the estimated cluster centres
     centers = kmeans.cluster_centers_
     # calculate the silhoutte score
@@ -158,10 +166,11 @@ def prediction(testdata, year):
     plt.figure(figsize=(15, 15), dpi=144)
     col = ["blue", "orange", "green", "tab:red", "tab:purple",
            "tab:brown", "tab:pink", "tab:gray", "tab:olive", "tab:cyan"]
-    # loop over the different labels 
+    # loop over the different labels
     for l in range(len(ncluster)):
-        plt.plot(testdata[labels==l]["co2"], testdata[labels==l]["cereal"], "o",
-                 markersize=10, color=col[l], alpha=0.5, label=("Cluster", l+1))
+        plt.plot(testdata[labels == l]["co2"], testdata[labels == l]["cereal"],
+                 "o", markersize=10, color=col[l], alpha=0.5, label=
+                 ("Cluster", l+1))
     # show cluster centres
     for ic in range(len(ncluster)):
         xc, yc = centers[ic, :]
@@ -172,6 +181,8 @@ def prediction(testdata, year):
     plt.title("Scatter plot showing the PREDICTED Clustering of different countries for the year %d" % year,fontsize=15)
     plt.legend()
     plt.show()
+
+    return clusters2
 
 
 def best_cluster(data, year):
@@ -196,7 +207,7 @@ def best_cluster(data, year):
     # Creating an empty array for SSE and silhouette_coefficients
     SSE = []
     silhouette_coefficients = []
-    
+
     # Calculating the SSE for each number of clusters
     for k in range(2, 11):
         kmeans = cluster.KMeans(n_clusters=k)
@@ -205,12 +216,12 @@ def best_cluster(data, year):
         SSE.append(kmeans.inertia_)
         score = skmet.silhouette_score(data, kmeans.labels_)
         silhouette_coefficients.append(score)
-        
+
     # Plotting the Number of Clusters against SSE
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6), dpi=144)
     # Title of the whole plot
     fig.suptitle('SSE and Silhouette Score to find Optimum Number of Clusters for the year %d' % year, fontsize=18)
-    ax1.plot(range(2,11), SSE)
+    ax1.plot(range(2, 11), SSE)
     ax1.set_xticks(range(2, 11))
     ax1.set_xlabel('Number of Clusters', fontsize=12)
     ax1.set_ylabel('Sum of Squared Error, SSE', fontsize=12)
@@ -221,27 +232,32 @@ def best_cluster(data, year):
     ax2.set_xlabel('Number of Clusters', fontsize=12)
     ax2.set_ylabel('Silhouette Coefficient', fontsize=12)
     plt.show()
-    
-    index_max = max(range(len(silhouette_coefficients)), key=silhouette_coefficients.__getitem__)
-    print("Maximum value of Silhouette Coefficient = %f " % max(silhouette_coefficients))
+    # To find the index value of the maximum value of Silhouette Coefficient
+    index_max = max(range(len(silhouette_coefficients)),
+                    key=silhouette_coefficients.__getitem__)
+    print("Maximum value of Silhouette Coefficient = %f "
+          % max(silhouette_coefficients))
     print("Optimum number of clusters = ", index_max+2)
+
 
 def objective(x, a, b, c, d):
     """Cubic polynominal for the fitting"""
-    
-    f = a * x**3 + b * x**2 + c * x + d 
-    
+
+    f = a * x**3 + b * x**2 + c * x + d
+
     return f
 
 
 def logistics(t, scale, growth, t0):
-    """ Computes logistics function with scale, growth raat
-    and time of the turning point as free parameters
     """
-    
+    Computes logistics function with scale, growth rate and time of the
+    turning point as free parameters
+    """
+
     f = scale / (1.0 + np.exp(-growth * (t - t0)))
-    
+
     return f
+
 
 # -----------------------------------------------------------------------------
 # Calling the function dataset() to read the csv data file and obtaining the
@@ -249,38 +265,56 @@ def logistics(t, scale, growth, t0):
 df, df_tran = dataset('API_19_DS2_en_csv_v2_4700503')
 
 # Preprocessing the data
-df_co2 = df.groupby('Indicator Name').get_group('CO2 emissions (kg per 2015 US$ of GDP)')
-df_cereal = df.groupby('Indicator Name').get_group('Cereal yield (kg per hectare)')
+df_co2 = df.groupby('Indicator Name').get_group(
+    'CO2 emissions (kg per 2015 US$ of GDP)')
+df_cereal = df.groupby('Indicator Name').get_group(
+    'Cereal yield (kg per hectare)')
 df_co2.reset_index(inplace=True)
-df_co2 = df_co2.drop(['index', 'Country Code', 'Indicator Name', 'Indicator Code', '1960', '2021'], axis=1)
+# Dropping the unwanted columns and blank cells
+df_co2 = df_co2.drop(
+ ['index', 'Country Code', 'Indicator Name', 'Indicator Code', '1960', '2021'],
+ axis=1)
 df_cereal.reset_index(inplace=True)
-df_cereal = df_cereal.drop(['index', 'Country Code', 'Indicator Name', 'Indicator Code', '1960', '2021'], axis=1)
+# Dropping the unwanted columns and blank cells
+df_cereal = df_cereal.drop(
+ ['index', 'Country Code', 'Indicator Name', 'Indicator Code', '1960', '2021'],
+ axis=1)
+# Setting the index of the dataframes
 df_co2 = df_co2.set_index('Country Name')
 df_cereal = df_cereal.set_index('Country Name')
-df_co2=df_co2.loc[:,'1990':'2019']
-df_cereal=df_cereal.loc[:,'1990':'2019']
-
+# Slicing the required data from the dataframe
+df_co2 = df_co2.loc[:, '1990':'2019']
+df_cereal = df_cereal.loc[:, '1990':'2019']
+# Replacing the nan values with 0
 df_co2.fillna(0, inplace=True)
 df_cereal.fillna(0, inplace=True)
-
-df_co2.drop(labels=['St. Vincent and the Grenadines', 'United Arab Emirates', 'Kuwait', 'Oman'], axis=0, inplace=True)
-df_cereal.drop(labels=['Mongolia', 'Syrian Arab Republic'], axis=0, inplace=True)
-
+# Removing the outliers from the data, which adversely affects the clustering
+df_co2.drop(labels=['St. Vincent and the Grenadines', 'United Arab Emirates',
+                    'Kuwait', 'Oman'], axis=0, inplace=True)
+df_cereal.drop(labels=['Mongolia',
+                       'Syrian Arab Republic'], axis=0, inplace=True)
+# Creating new dataframe having both co2 and cereal data
 df_1990 = pd.DataFrame().assign(co2=df_co2['1990'], cereal=df_cereal['1990'])
 df_2019 = pd.DataFrame().assign(co2=df_co2['2019'], cereal=df_cereal['2019'])
-
+# Removing the zero values from the dataframe
 df_1990.replace(0, np.nan, inplace=True)
 df_1990.dropna(inplace=True)
 df_2019.replace(0, np.nan, inplace=True)
 df_2019.dropna(inplace=True)
-# Normalized
-dfn_1990 = pd.DataFrame(prep.normalize(df_1990, axis=0), index=df_1990.index, columns=df_1990.columns)
-dfn_2019 = pd.DataFrame(prep.normalize(df_2019, axis=0), index=df_2019.index, columns=df_2019.columns)
+# Normalizing the values of the dataframe for the purpuse of clustering
+dfn_1990 = pd.DataFrame(prep.normalize(df_1990, axis=0),
+                        index=df_1990.index, columns=df_1990.columns)
+dfn_2019 = pd.DataFrame(prep.normalize(df_2019, axis=0),
+                        index=df_2019.index, columns=df_2019.columns)
+# Calling each function for scatter plot, finding the optimum number of cluster
+# clustering and prediction
+scatter_plot(dfn_1990, dfn_2019, 1990, 2019)
+best_cluster(dfn_1990, 1990)
+a_1990 = clustering(dfn_1990, 3, 1990)
+b_2019 = prediction(dfn_2019, 2019)
 
-scatter_plot(df_2019, df_1990, 2019, 1990)
-clustering(dfn_1990, 3, 1990)
-prediction(dfn_2019, 2019)
-
+# -----------------------------------------------------------------------------
+# Preprocessing the dataset for curve fitting
 # changing the header of the transposed datafram and populating it with the
 # country names
 header1 = df_tran.iloc[0]
@@ -288,7 +322,7 @@ df_tran = df_tran[1:]
 df_tran.columns = header1
 
 # Extracting information from the transposed matrix for different countries
-# Creating a dataframe for India and changing the column names of that
+# Creating a dataframe for China and changing the column names of that
 # dataframe as the Indicator name
 df_china = df_tran['China']
 # The header extracted below can be used for headers of different countries
@@ -372,5 +406,3 @@ plt.legend(fontsize=12)
 plt.xlabel("Time", fontsize=12)
 plt.ylabel("Population, total", fontsize=12)
 plt.show()
-
-best_cluster(dfn_2019, 2019)
