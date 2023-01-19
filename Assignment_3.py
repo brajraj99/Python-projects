@@ -312,6 +312,21 @@ scatter_plot(dfn_1990, dfn_2019, 1990, 2019)
 best_cluster(dfn_1990, 1990)
 a_1990 = clustering(dfn_1990, 3, 1990)
 b_2019 = prediction(dfn_2019, 2019)
+a = a_1990['Cluster ID'].value_counts()
+b = b_2019['Cluster ID'].value_counts()
+
+# Creating pie charts of percent of countries in each cluster for 1990 & 2019
+labels = ['Cluster 1', 'Cluster 2', 'Cluster 3']
+fig, ax = plt.subplots(1, 2, figsize=(10, 5), dpi=144)
+ax[0].pie(a, labels=labels, autopct='%1.1f%%',
+          shadow=True, startangle=90)
+ax[1].pie(b, labels=labels, autopct='%1.1f%%',
+          shadow=True, startangle=90)
+ax[0].axis('equal')
+ax[1].axis('equal')
+plt.suptitle('Pie chart of percent of countries in each cluster for 1990 & 2019',
+             fontsize=15)
+plt.show()
 
 # -----------------------------------------------------------------------------
 # Preprocessing the dataset for curve fitting
